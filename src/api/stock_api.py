@@ -1,46 +1,43 @@
 import requests
 import pandas as pd
 import os
+from datetime import datetime, timedelta
+import json
+# Your FinHub API key
+finhub_api_key = os.environ.get('FINHUB_API_KEY')
 
+import finnhub
+import pandas as pd
+import os
+import time
 
-# Your Alpha Vantage API key
-api_key = os.environ.get('MY_API_KEY')
+import finnhub
 
-# Function to get stock data from Alpha Vantage
-def get_stock_data(symbol='IBM', interval='1min'):
-    url = f'https://www.alphavantage.co/query'
-    params = {
-        'function': 'TIME_SERIES_INTRADAY',
-        'symbol': symbol,
-        'interval': interval,
-        'apikey': api_key
-    }
-    response = requests.get(url, params=params)
-    data = response.json()
-    return data
+# Setup client
+finnhub_client = finnhub.Client(api_key=finhub_api_key)
 
-# Function to save data in JSON format
-def save_as_json(data, filename):
-    with open(filename, 'w') as f:
-        pd.DataFrame(data).to_json(f, orient='records', lines=True)
+# Basic financials
+#print(finnhub_client.company_basic_financials('AAPL', 'all'))
 
-# Function to save data in CSV format
-def save_as_csv(data, filename):
-    df = pd.DataFrame(data)
-    df.to_csv(filename, index=False)
-
-# Function to save data in Excel format
-def save_as_excel(data, filename):
-    df = pd.DataFrame(data)
-    df.to_excel(filename, index=False)
-
-# Example usage
 symbol = 'AAPL'
-data = get_stock_data(symbol)
 
-# Save data in different formats
-save_as_json(data, 'raws/stock_data.json')
-save_as_csv(data, 'raws/stock_data.csv')
-save_as_excel(data, 'raws/stock_data.xlsx')
+# Define the timeframe for which you want financial data (e.g., last 30 days)
+end_date = datetime.now()
+start_date = end_date - timedelta(days=30)
 
-print("Data saved successfully!")
+# Format dates as UNIX timestamps
+start_timestamp = int(start_date.timestamp())
+end_timestamp = int(end_date.timestamp())
+
+# Fetch basic financials data using the FinHub client
+response = finnhub_client.company_basic_financials(symbol, 'all')
+
+# Ensure the 'raws' directory exists
+os.makedirs('raws', exist_ok=True)
+
+# Save the raw JSON data to a file in the 'raws' directory
+json_filename = os.path.join('raws', 'financial_data.json')
+with open(json_filename, 'w') as json_file:
+    json.dump(response, json_file, indent=4)
+
+print(f"Financial data saved successfully as '{json_filename}'.")
