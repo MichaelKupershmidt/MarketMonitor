@@ -1,4 +1,4 @@
-def insert_basic_financials(data):
+def basic_financials_inserrt_statement(data):
     day10_average_trading_volume = data.get("10DayAverageTradingVolume")
     week13_price_return_daily = data.get("13WeekPriceReturnDaily")
     week26_price_return_daily = data.get("26WeekPriceReturnDaily")
@@ -39,3 +39,16 @@ def insert_basic_financials(data):
         {price_relative_to_sp500_52_week}, {price_relative_to_sp500_ytd}
     );
     """
+    return insert_statement
+def company_profile_insert_statement(data):
+    insert_statement = f"""
+    INSERT INTO Company (
+        country, currency, estimate_currency, exchange, industry, ipo, logo, 
+        market_capitalization, name, phone, shares_outstanding, ticker, weburl
+    ) VALUES (
+        '{data["country"]}', '{data["currency"]}', '{data["estimateCurrency"]}', '{data["exchange"]}', 
+        '{data["finnhubIndustry"]}', '{data["ipo"]}', '{data["logo"]}', {data["marketCapitalization"]}, 
+        '{data["name"]}', '{data["phone"]}', {data["shareOutstanding"]}, '{data["ticker"]}', '{data["weburl"]}'
+    );
+    """
+    return insert_statement
